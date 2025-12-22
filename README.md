@@ -15,6 +15,21 @@ With approximately 63 million people in India suffering from significant hearing
 - **Resource Efficient**: Trained on only 30 signs, achieving 96.35% accuracy
 - **LLM Integration**: Uses Llama 3.1 for natural language generation
 
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/04a0b442-0ed2-40a8-9735-af5e8a77f35b" alt="Flowchart">
+  <br>
+  <em>Figure 1: System flowchart</em>
+</div>
+
+<br>
+
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/1b0047ff-d898-4d19-98a9-1ae87458d746" alt="Model Architecture">
+  <br>
+  <em>Figure 2: Model architecture.</em>
+</div>
+
+
 ## Performance
 
 | Metric | Score |
@@ -26,7 +41,7 @@ With approximately 63 million people in India suffering from significant hearing
 
 ## Dataset
 
-This project uses a subset of the **INCLUDE dataset** - a large-scale Indian Sign Language dataset containing over 4,000 videos across 263 unique ISL signs.
+This project uses a subset of the [**INCLUDE dataset**](https://zenodo.org/records/4010759) - a large-scale Indian Sign Language dataset containing over 4,000 videos across 263 unique ISL signs.
 
 **Our Subset:**
 - 30 commonly used signs across 7 categories
@@ -48,7 +63,7 @@ This project uses a subset of the **INCLUDE dataset** - a large-scale Indian Sig
 ### Prerequisites
 - Python 3.8+
 - Webcam
-- GROQ API key ([Get one here](https://console.groq.com/))
+- GROQ API key ([Get one here](https://console.groq.com/keys))
 
 ### Installation
 ```bash
@@ -75,6 +90,7 @@ streamlit run app.py
 The app will open at `http://localhost:8501`
 
 ## Demo
+Coming Soon
 
 ## Project Structure
 ```
