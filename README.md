@@ -1,4 +1,6 @@
-# Indian Sign Language Translator
+<p align="center"><img src="docs/logo.svg" alt="" width="88"></p>
+
+<h1 align="center">Indian Sign Language Translator</h1>
 
 Recognises Indian Sign Language (ISL) from a webcam and turns a sequence of signs
 into an English sentence. A BiLSTM with attention recognises each sign from hand and
