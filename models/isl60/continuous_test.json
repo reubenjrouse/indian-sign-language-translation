@@ -1,0 +1,37 @@
+{
+  "split": "test",
+  "sentences": 200,
+  "seed": 0,
+  "results": {
+    "natural / motion (2024 app)": {
+      "wer": 0.7,
+      "exact": 0.0,
+      "signs_per_ref": 0.3288135593220339
+    },
+    "natural / motion, tuned": {
+      "wer": 0.3389830508474576,
+      "exact": 0.285,
+      "signs_per_ref": 0.8186440677966101
+    },
+    "natural / hand position (new)": {
+      "wer": 0.04576271186440678,
+      "exact": 0.895,
+      "signs_per_ref": 0.9915254237288136
+    },
+    "no-rest / motion (2024 app)": {
+      "wer": 0.6949152542372882,
+      "exact": 0.0,
+      "signs_per_ref": 0.3288135593220339
+    },
+    "no-rest / motion, tuned": {
+      "wer": 0.4864406779661017,
+      "exact": 0.13,
+      "signs_per_ref": 0.5796610169491525
+    },
+    "no-rest / hand position (new)": {
+      "wer": 0.03559322033898305,
+      "exact": 0.91,
+      "signs_per_ref": 0.9949152542372881
+    }
+  }
+}

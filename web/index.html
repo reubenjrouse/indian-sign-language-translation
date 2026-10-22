@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ISL Translator</title>
+  <meta name="description" content="Live Indian Sign Language recognition and translation, running in the browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%234671b6'/%3E%3Cg fill='%23fff'%3E%3Crect x='18' y='30' width='29' height='27' rx='11'/%3E%3Crect x='18.5' y='12' width='6.6' height='26' rx='3.3'/%3E%3Crect x='26.2' y='7' width='6.6' height='30' rx='3.3'/%3E%3Crect x='33.9' y='8.5' width='6.6' height='28' rx='3.3'/%3E%3Crect x='41.4' y='14' width='6.2' height='24' rx='3.1'/%3E%3Crect x='8' y='30' width='6.6' height='21' rx='3.3' transform='rotate(-38 11 40)'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-mode="sentence">
+  <svg width="0" height="0" class="defs" aria-hidden="true">
+    <defs>
+      <g id="hand">
+        <rect x="18" y="30" width="29" height="27" rx="11"/>
+        <rect x="18.5" y="12" width="6.6" height="26" rx="3.3"/>
+        <rect x="26.2" y="7" width="6.6" height="30" rx="3.3"/>
+        <rect x="33.9" y="8.5" width="6.6" height="28" rx="3.3"/>
+        <rect x="41.4" y="14" width="6.2" height="24" rx="3.1"/>
+        <rect x="8" y="30" width="6.6" height="21" rx="3.3" transform="rotate(-38 11 40)"/>
+      </g>
+    </defs>
+  </svg>
+
+  <header class="bar">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="15" fill="#4671b6"/><g fill="#fff"><use href="#hand"/></g></svg>
+      <h1>ISL Translator</h1>
+    </div>
+    <div class="controls">
+      <div class="segmented" role="radiogroup" aria-label="Mode">
+        <label><input type="radio" name="mode" value="sentence" checked><span>Sentences</span></label>
+        <label><input type="radio" name="mode" value="word"><span>Single signs</span></label>
+      </div>
+      <label class="visually-hidden" for="camera-select">Camera</label>
+      <select class="select" id="camera-select" disabled>
+        <option>Camera</option>
+      </select>
+      <button class="btn" id="btn-sample" type="button" disabled>Try a sample</button>
+      <label class="btn" id="btn-file-label" aria-disabled="true">
+        Open a video<input type="file" id="file-input" accept="video/*" hidden disabled>
+      </label>
+      <button class="btn btn-primary" id="btn-camera" type="button" disabled>Turn on camera</button>
+      <button class="btn btn-quiet" id="btn-settings" type="button" aria-haspopup="dialog">Settings</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="stage" id="stage" aria-label="Video">
+      <canvas class="backdrop" id="backdrop" width="64" height="36" aria-hidden="true"></canvas>
+      <div class="viewport" id="viewport" data-state="empty">
+        <video id="video" playsinline muted></video>
+        <canvas id="overlay" aria-hidden="true"></canvas>
+        <div class="empty">
+          <p class="empty-title" id="empty-title">Loading hand tracking and the sign model…</p>
+          <p class="empty-body" id="empty-body">Everything runs in this browser tab. Video stays on this device.</p>
+        </div>
+        <p class="status" id="status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="band" aria-labelledby="band-label">
+      <div class="band-head">
+        <h2 id="band-label"><span class="mode-sentence">Signs recognised</span><span class="mode-word">Last sign</span></h2>
+        <p class="countdown num mode-sentence" id="countdown"></p>
+        <p class="llm-label" id="llm-label"></p>
+      </div>
+      <ol class="tiles" id="tiles" aria-label="Recognised signs"></ol>
+      <svg class="links" id="links" aria-hidden="true"></svg>
+      <div class="sentence-row">
+        <p class="sentence" id="sentence" aria-live="polite"></p>
+        <div class="band-actions mode-sentence">
+          <button class="btn btn-on-band" id="btn-translate" type="button" disabled>Translate now</button>
+          <button class="btn btn-on-band btn-quiet" id="btn-clear" type="button" disabled>Clear</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="trace" aria-labelledby="h-trace">
+      <div class="trace-head">
+        <h2 id="h-trace">Hand height, last 12 seconds</h2>
+        <p>A sign starts when a hand rises above the dashed line, and ends when it drops or holds still.</p>
+      </div>
+      <svg class="trace-svg" id="trace" role="img" aria-label="Height of the higher hand over the last 12 seconds, with each detected sign shaded and named"></svg>
+    </section>
+
+    <section class="facts" aria-label="Model and performance">
+      <div><h2>Hand tracking</h2><p class="num" id="fact-tracking">Not running</p></div>
+      <div><h2>Sign model</h2><p class="num" id="fact-model">Loading</p></div>
+      <div><h2>Held-out test accuracy</h2><p class="num" id="fact-test">Not reported</p></div>
+    </section>
+
+    <section class="more">
+      <div class="history-col" aria-labelledby="h-history">
+        <h2 id="h-history">Earlier</h2>
+        <ol class="history" id="history"></ol>
+        <p class="hint" id="history-empty">Translated sentences and signs collect here.</p>
+      </div>
+      <div class="signs-col" aria-labelledby="h-signs">
+        <h2 id="h-signs">Signs it knows <span class="num" id="sign-count"></span></h2>
+        <div class="sign-groups" id="sign-groups"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p>Sample clip from the INCLUDE dataset (Sridhar et al., 2020), licensed CC BY 4.0. Its three videos are from the held-out test split, so the model never trained on them.</p>
+    <p><a href="https://github.com/reubenjrouse/indian-sign-language-translation">Source, training pipeline and results on GitHub</a></p>
+  </footer>
+
+  <dialog id="settings" aria-labelledby="h-settings">
+    <form method="dialog" class="settings">
+      <h2 id="h-settings">Detection settings</h2>
+      <p class="hint">Saved in this browser. The defaults were tuned on held-out validation sentences.</p>
+      <label>Frames analysed per second <output data-for="fps" class="num"></output>
+        <input type="range" name="fps" min="8" max="30" step="1"></label>
+      <label>Hold still this long to end a sign <output data-for="holdSeconds" class="num"></output>
+        <input type="range" name="holdSeconds" min="0.3" max="1.5" step="0.1"></label>
+      <label>Lowest confidence that keeps a sign <output data-for="minConfidence" class="num"></output>
+        <input type="range" name="minConfidence" min="0.2" max="0.95" step="0.05"></label>
+      <label>Pause before translating, seconds <output data-for="pauseSeconds" class="num"></output>
+        <input type="range" name="pauseSeconds" min="2" max="10" step="0.5"></label>
+      <div class="dialog-actions">
+        <button class="btn btn-quiet" type="button" id="btn-reset-settings">Reset</button>
+        <button class="btn btn-primary" value="close">Done</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

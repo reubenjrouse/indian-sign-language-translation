@@ -1,120 +1,83 @@
-# Indian Sign Language (ISL) Translation System
+# Indian Sign Language Translator
 
-A real-time Indian Sign Language translation system that combines BiLSTM networks with Large Language Models to bridge the communication gap for the deaf community.
+Recognises Indian Sign Language (ISL) from a webcam and turns a sequence of signs
+into an English sentence. A BiLSTM with attention recognises each sign from hand and
+body landmarks; an LLM then writes the signs as a grammatical sentence, adding the
+words ISL leaves out. Everything except the LLM call runs in the browser.
 
-## Overview
-With approximately 63 million people in India suffering from significant hearing loss but only 339 certified ISL interpreters nationwide, there's an urgent need for automated translation solutions. This project addresses that gap using deep learning and modern language models.
+<p align="center">
+  <img src="docs/screenshot.png" alt="The app after reading the sample clip: the signs GOOD-MORNING, WE and ALRIGHT, each joined by a line to its word in the sentence 'Good morning, we are alright.', with 'are' set lighter because the LLM added it" width="860">
+  <br><em>The built-in sample: three held-out test clips read as one sentence. Lighter words were
+  added by the LLM. (The LLM reply here was supplied by a test, as no API key was set.)</em>
+</p>
 
-### Key Features
+## How it works
 
-- **Real-time Sign Detection**: Live webcam-based sign language recognition
-- **Continuous Translation**: Converts sequences of signs into natural English sentences
-- **Dual Modes:**
-  - **Word Detection**: Practice individual signs with confidence scores
-  - **Sentence Formation**: Build and translate complete sentences
-- **Resource Efficient**: Trained on only 30 signs, achieving 96.35% accuracy
-- **LLM Integration**: Uses Llama 3.1 for natural language generation
+<p align="center"><img src="docs/pipeline.svg" alt="Figure 1: camera frame, landmark features, sign segmentation by hand height, recognition with a BiLSTM, translation with an LLM" width="900"></p>
+<p align="center"><em>Figure 1. The pipeline.</em></p>
 
-<div align="center">
-  <img src="https://github.com/user-attachments/assets/04a0b442-0ed2-40a8-9735-af5e8a77f35b" alt="Flowchart">
-  <br>
-  <em>Figure 1: System flowchart</em>
-</div>
+1. **Landmarks.** MediaPipe tracks 12 arm points and 21 points per hand. Each frame becomes 108 numbers.
+2. **Finding each sign.** A sign starts when a hand rises to the chest and ends when it drops or holds still for 0.8 s, measured against shoulder width so camera distance doesn't matter.
+3. **Recognition.** Each sign is resampled to 65 frames and classified into one of 60 signs.
+4. **Translation.** The signs, plus runner-up guesses for uncertain ones, go to an LLM, which can use the sentence's context to fix a likely mistake (WE or THEY).
 
-<br>
+<p align="center"><img src="docs/model.svg" alt="Figure 2: input of 65 frames by 108 features, LayerNorm, two-layer bidirectional LSTM with 256 units each way, attention pooling over frames, classifier with Linear 512 to 256, ReLU, dropout 0.5, Linear 256 to 60 and softmax" width="900"></p>
+<p align="center"><em>Figure 2. The recognition model (2.6 M parameters).</em></p>
 
-<div align="center">
-  <img src="https://github.com/user-attachments/assets/1b0047ff-d898-4d19-98a9-1ae87458d746" alt="Model Architecture">
-  <br>
-  <em>Figure 2: Model architecture.</em>
-</div>
+## Results
 
+Trained on 60 signs from the [INCLUDE](https://zenodo.org/records/4010759) dataset, chosen so they combine into
+sentences (pronouns, greetings, family, jobs, places, time words, adjectives). Evaluated once on
+INCLUDE's held-out test split.
 
-## Performance
+| Task | Test set | Result |
+|---|---|---|
+| Single signs | 209 videos | **98.6%** accuracy, macro F1 0.987 |
+| Sentences, with a rest between signs | 200 sentences of 2-4 signs | **4.6%** word error rate, 89.5% exactly right |
+| Sentences, signs back to back | 200 sentences of 2-4 signs | **3.6%** word error rate, 91.0% exactly right |
 
-| Metric | Score |
-|--------|-------|
-| Isolated Sign Accuracy | **96.35%** |
-| F1-Score | **0.963** |
-| BLEU-4 (Translation) | **54.1%** |
-| BLEURT Score | **56.08%** |
+The sentences are built by joining test clips ([`scripts/eval_continuous.py`](scripts/eval_continuous.py)).
+For comparison, segmenting by motion instead of hand position gives 34-49% word error rate
+on the same sentences. The three single-sign errors are I read as YOU (twice) and BROTHER
+read as SISTER: pointing toward or away from the camera is hard to tell apart without depth.
 
-## Dataset
+Details: [`models/isl60/`](models/isl60/) (per-sign report, [confusion matrix](models/isl60/confusion_test.png),
+[training curves](models/isl60/training_curves.png), [sentence results](models/isl60/continuous_test.json)).
 
-This project uses a subset of the [**INCLUDE dataset**](https://zenodo.org/records/4010759) - a large-scale Indian Sign Language dataset containing over 4,000 videos across 263 unique ISL signs.
+## Run it
 
-**Our Subset:**
-- 30 commonly used signs across 7 categories
-- 269 original videos (8-12 per sign)
-- Augmented to ~100 videos per sign
-- Categories: Greetings, Pronouns, Adjectives, Occupations, Objects, Places, Time
-
-**Supported Signs:**
-- Greetings: Hello, Good Morning, Goodnight, Thank you
-- Pronouns: I, You, He, She, It
-- Occupations: Doctor, Teacher, Lawyer
-- Adjectives: Nice, Mean, Expensive, Poor, Thick, Thin, Pleased, Alright, Patient
-- Descriptors: Male, Female
-- Questions: How are you
-
-
-## Setup
-
-### Prerequisites
-- Python 3.8+
-- Webcam
-- GROQ API key ([Get one here](https://console.groq.com/keys))
-
-### Installation
 ```bash
-# Clone the repository
-git clone https://github.com/reubenjrouse/SignTalk.git
-cd SignTalk
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Create .env file
-echo "GROQ_API_KEY=your_api_key_here" > .env
+python -m venv .venv
+.venv\Scripts\activate            # macOS/Linux: source .venv/bin/activate
+pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
+cp .env.example .env              # add an LLM_API_KEY (free at console.groq.com)
+python -m server                  # http://localhost:8000
 ```
 
-### Run the Application
+Press **Try a sample**, or turn on the camera: raise a hand to sign, lower it or hold still
+between signs, and pause to translate. Without an API key the signs are shown as written.
+Any OpenAI-compatible endpoint works, including a local model through Ollama
+(`LLM_BASE_URL=http://localhost:11434/v1`).
+
+## Train it
+
 ```bash
-streamlit run app.py
+python scripts/run_all.py --config configs/isl60.yaml --data-dir data --out runs --workers 8
 ```
 
-The app will open at `http://localhost:8501`
+This downloads only the needed INCLUDE videos, extracts landmarks with augmentation
+(noise, rotation, cutout), trains (about 10 minutes on a CPU), evaluates and exports the
+model for the browser. Landmark extraction is the slow step, about 2 hours on a laptop.
+[`configs/`](configs/) also has INCLUDE-50, the standard 50-sign benchmark. Tests: `pytest`.
 
-## Demo
-Coming Soon
+## Limitations
 
-## Project Structure
-```
-SignTalk/
-├── app.py                      # Main Streamlit application
-├── models/
-│   ├── model.py               # BiLSTM model architecture
-│   └── best_model_24.pth      # Trained model weights
-├── requirements.txt           # Python dependencies
-├── .env                       # Environment variables
-└── README.md
-```
+- 60 signs, from a dataset with few signers. Expect lower accuracy for new signers, lighting and backgrounds.
+- Signs need a boundary (lower the hands or hold still). Fluent, blended signing would need continuous training data.
+- Hands and arms only: no facial expressions, which carry grammar in ISL.
 
-## Authors
+## Credits
 
-- [@reubenjrouse](https://github.com/reubenjrouse)
-- [@leharrathore25](https://github.com/leharrathore25)
-
-## Acknowledgements
-
-- **INCLUDE Dataset**: Sridhar et al. for providing the Indian Sign Language dataset
-- **Mukesh Patel School of Technology and Management, NMIMS University**
-
-
-<div align="center">
-Made with ❤️ for the Indian deaf community
-</div>
+[@reubenjrouse](https://github.com/reubenjrouse) and [@leharrathore25](https://github.com/leharrathore25),
+supervised by Dr. Vaishali Kulkarni (NMIMS, Mumbai).
+Data: INCLUDE, Sridhar et al., ACM Multimedia 2020, CC BY 4.0. MIT License.

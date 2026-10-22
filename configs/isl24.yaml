@@ -1,0 +1,59 @@
+# The 24-sign vocabulary from the 2024 paper (greetings, pronouns, jobs, adjectives).
+# Class index = position in this list.
+# `include` is the class folder inside the extracted INCLUDE dataset.
+name: isl24
+
+signs:
+  - {label: Alright,      include: "Greetings/50. Alright"}
+  - {label: Doctor,       include: "Jobs/87. Doctor"}
+  - {label: Expensive,    include: "Adjectives/15. expensive"}
+  - {label: Female,       include: "Adjectives/20. female"}
+  - {label: Good Morning, include: "Greetings/51. Good Morning"}
+  - {label: Goodnight,    include: "Greetings/54. Good night"}
+  - {label: He,           include: "Pronouns/42. he"}
+  - {label: Hello,        include: "Greetings/48. Hello"}
+  - {label: How are you,  include: "Greetings/49. How are you"}
+  - {label: I,            include: "Pronouns/40. I"}
+  - {label: It,           include: "Pronouns/44. it"}
+  - {label: Lawyer,       include: "Jobs/86. Lawyer"}
+  - {label: Male,         include: "Adjectives/19. male"}
+  - {label: Mean,         include: "Adjectives/10. Mean"}
+  - {label: Nice,         include: "Adjectives/9. Nice"}
+  - {label: Patient,      include: "Jobs/88. Patient"}
+  - {label: Pleased,      include: "Greetings/56. Pleased"}
+  - {label: Poor,         include: "Adjectives/12. poor"}
+  - {label: She,          include: "Pronouns/43. she"}
+  - {label: Teacher,      include: "Jobs/84. Teacher"}
+  - {label: Thank you,    include: "Greetings/55. Thank you"}
+  - {label: Thick,        include: "Adjectives/13. thick"}
+  - {label: Thin,         include: "Adjectives/14. thin"}
+  - {label: You,          include: "Pronouns/41. you"}
+
+data:
+  include_root: data/include          # where scripts/download_include.py extracts videos
+  processed_dir: data/processed/isl24 # landmark sequences + manifest.csv
+  split: official                     # INCLUDE's published train/val/test lists
+  split_lists: include                # full-INCLUDE lists (covers all 263 signs)
+  val_from_train: 0.15                # official val has no videos for 7 of these signs, so
+                                      # move 15% of each sign's train videos to val (test untouched)
+  seq_len: 65                         # frames per sample after resampling
+  fps: null                           # null = use every frame of the source video
+
+augment:
+  enabled: true                       # augments the train split only
+  target_per_class: 100               # paper: ~100 samples per sign after augmentation
+
+model:
+  hidden_size: 256
+  num_layers: 2
+  dropout: 0.5
+
+train:
+  seed: 42
+  batch_size: 32
+  lr: 0.001
+  weight_decay: 0.01
+  max_epochs: 200
+  lr_factor: 0.5                      # ReduceLROnPlateau on val accuracy
+  lr_patience: 5
+  early_stop_patience: 15

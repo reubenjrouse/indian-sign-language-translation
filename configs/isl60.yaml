@@ -1,0 +1,104 @@
+# 60 signs chosen from INCLUDE (263 signs) for building simple sentences in the app:
+# pronouns, greetings, people, jobs, places, time words and common adjectives.
+# INCLUDE has almost no verbs; the LLM supplies them ("TOMORROW WE SCHOOL" ->
+# "Tomorrow we are going to school."). Where there was a choice, signs with ~20
+# videos were preferred over those with 4-8. Uses INCLUDE's official train/val/test split.
+name: isl60
+
+signs:
+  # Pronouns
+  - {label: I,               include: "Pronouns/40. I"}
+  - {label: You,             include: "Pronouns/41. you"}
+  - {label: He,              include: "Pronouns/42. he"}
+  - {label: She,             include: "Pronouns/43. she"}
+  - {label: It,              include: "Pronouns/44. it"}
+  - {label: We,              include: "Pronouns/45. we"}
+  - {label: You (plural),    include: "Pronouns/46. you (plural)"}
+  - {label: They,            include: "Pronouns/47. they"}
+  # Greetings
+  - {label: Hello,           include: "Greetings/48. Hello"}
+  - {label: How are you,     include: "Greetings/49. How are you"}
+  - {label: Alright,         include: "Greetings/50. Alright"}
+  - {label: Good Morning,    include: "Greetings/51. Good Morning"}
+  - {label: Good afternoon,  include: "Greetings/52. Good afternoon"}
+  - {label: Good night,      include: "Greetings/54. Good night"}
+  - {label: Thank you,       include: "Greetings/55. Thank you"}
+  - {label: Pleased,         include: "Greetings/56. Pleased"}
+  # People
+  - {label: Mother,          include: "People/60. Mother"}
+  - {label: Father,          include: "People/61. Father"}
+  - {label: Brother,         include: "People/66. Brother"}
+  - {label: Sister,          include: "People/67. Sister"}
+  - {label: Friend,          include: "People/81. Friend"}
+  - {label: Family,          include: "People/68. Family"}
+  - {label: Baby,            include: "People/63. Baby"}
+  - {label: Boy,             include: "People/77. Boy"}
+  - {label: Girl,            include: "People/78. Girl"}
+  # Jobs
+  - {label: Teacher,         include: "Jobs/84. Teacher"}
+  - {label: Student,         include: "Jobs/85. Student"}
+  - {label: Doctor,          include: "Jobs/87. Doctor"}
+  - {label: Patient,         include: "Jobs/88. Patient"}
+  - {label: Police,          include: "Jobs/92. Police"}
+  # Places
+  - {label: House,           include: "Places/19. House"}
+  - {label: School,          include: "Places/24. School"}
+  - {label: Hospital,        include: "Places/30. Hospital"}
+  - {label: Office,          include: "Places/25. Office"}
+  - {label: Restaurant,      include: "Places/22. Restaurant"}
+  - {label: Market,          include: "Places/32. Market"}
+  - {label: Park,            include: "Places/27. Park"}
+  - {label: Temple,          include: "Places/31. Temple"}
+  # Time
+  - {label: Today,           include: "Days_and_Time/73. Today"}
+  - {label: Tomorrow,        include: "Days_and_Time/74. Tomorrow"}
+  - {label: Yesterday,       include: "Days_and_Time/75. Yesterday"}
+  - {label: Morning,         include: "Days_and_Time/82. Morning"}
+  - {label: Night,           include: "Days_and_Time/85. Night"}
+  # Adjectives
+  - {label: Happy,           include: "Adjectives/3. happy"}
+  - {label: Sick,            include: "Adjectives/98. sick"}
+  - {label: Healthy,         include: "Adjectives/99. healthy"}
+  - {label: Good,            include: "Adjectives/94. good"}
+  - {label: Bad,             include: "Adjectives/95. bad"}
+  - {label: Hot,             include: "Adjectives/87. hot"}
+  - {label: Cold,            include: "Adjectives/88. cold"}
+  - {label: New,             include: "Adjectives/91. new"}
+  - {label: Old,             include: "Adjectives/92. old"}
+  - {label: Young,           include: "Adjectives/93. young"}
+  - {label: Tall,            include: "Adjectives/80. tall"}
+  - {label: Quiet,           include: "Adjectives/2. quiet"}
+  # Transport
+  - {label: Car,             include: "Means_of_Transportation/11. Car"}
+  - {label: Bus,             include: "Means_of_Transportation/14. Bus"}
+  - {label: Train,           include: "Means_of_Transportation/9. Train"}
+  # Things
+  - {label: Book,            include: "Home/37. Book"}
+  - {label: Money,           include: "Society/4. Money"}
+
+data:
+  include_root: data/include
+  processed_dir: data/processed/isl60
+  split: official
+  split_lists: include
+  seq_len: 65
+  fps: null
+
+augment:
+  enabled: true
+  target_per_class: 100
+
+model:
+  hidden_size: 256
+  num_layers: 2
+  dropout: 0.5
+
+train:
+  seed: 42
+  batch_size: 32
+  lr: 0.001
+  weight_decay: 0.01
+  max_epochs: 200
+  lr_factor: 0.5
+  lr_patience: 5
+  early_stop_patience: 15

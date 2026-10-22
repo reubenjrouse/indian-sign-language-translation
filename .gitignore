@@ -1,1 +1,24 @@
+# secrets
 .env
+
+# environments / caches
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# dataset, processed features, training runs (all reproducible with scripts/)
+data/
+runs/
+*.part
+
+# MediaPipe models (downloaded on first use)
+models/mediapipe/
+
+# local tool folders
+.taste-skill/
+.claude/
+
+paper.tex
+
+tests/

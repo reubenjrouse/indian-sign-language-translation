@@ -1,0 +1,23 @@
+# Core (recognition, preprocessing, training)
+torch==2.14.1
+mediapipe==1.1.0
+opencv-python==5.0.0.93
+numpy==2.2.6
+PyYAML==6.0.3
+scikit-learn==1.9.1
+matplotlib==3.11.2
+tqdm==4.70.1
+
+# Export to ONNX for the browser
+onnx==1.23.2
+onnxruntime==1.31.0
+onnxscript==0.7.2
+
+# Web server + LLM translation
+fastapi==0.143.0
+uvicorn==0.54.0
+httpx==0.28.1
+python-dotenv==1.2.4
+
+# Tests
+pytest==9.1.1

@@ -1,0 +1,7 @@
+{
+  "split": "test",
+  "samples": 209,
+  "accuracy": 0.9856459330143541,
+  "macro_f1": 0.9868783068783069,
+  "checkpoint": "models/isl60/best.pt"
+}

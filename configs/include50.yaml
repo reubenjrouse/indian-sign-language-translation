@@ -1,0 +1,84 @@
+# INCLUDE-50: the standard 50-sign benchmark subset of INCLUDE (Sridhar et al., 2020),
+# with its published train/val/test split. Class order follows AI4Bharat's
+# label_map_include50.json. Labels are display names; `include` is the dataset folder.
+# The INCLUDE paper reports 94.5% test accuracy for its best model on this subset.
+name: include50
+
+signs:
+  - {label: Bank,           include: "Places/35. Bank"}
+  - {label: Big,            include: "Adjectives/83. big large"}
+  - {label: Bird,           include: "Animals/4. Bird"}
+  - {label: Black,          include: "Colours/54. Black"}
+  - {label: Boy,            include: "People/77. Boy"}
+  - {label: Brother,        include: "People/66. Brother"}
+  - {label: Car,            include: "Means_of_Transportation/11. Car"}
+  - {label: Cell phone,     include: "Electronics/54. Cell phone"}
+  - {label: Court,          include: "Places/23. Court"}
+  - {label: Cow,            include: "Animals/5. Cow"}
+  - {label: Death,          include: "Society/2. Death"}
+  - {label: Dog,            include: "Animals/1. Dog"}
+  - {label: Dry,            include: "Adjectives/97. dry"}
+  - {label: Election,       include: "Society/14. Election"}
+  - {label: Autumn,         include: "Seasons/64. Fall"}
+  - {label: Fan,            include: "Electronics/53. Fan"}
+  - {label: Father,         include: "People/61. Father"}
+  - {label: Girl,           include: "People/78. Girl"}
+  - {label: Good,           include: "Adjectives/94. good"}
+  - {label: Good Morning,   include: "Greetings/51. Good Morning"}
+  - {label: Happy,          include: "Adjectives/3. happy"}
+  - {label: Hat,            include: "Clothes/37. Hat"}
+  - {label: Hello,          include: "Greetings/48. Hello"}
+  - {label: Hot,            include: "Adjectives/87. hot"}
+  - {label: House,          include: "Places/19. House"}
+  - {label: I,              include: "Pronouns/40. I"}
+  - {label: It,             include: "Pronouns/44. it"}
+  - {label: Long,           include: "Adjectives/78. long"}
+  - {label: Loud,           include: "Adjectives/1. loud"}
+  - {label: Monday,         include: "Days_and_Time/67. Monday"}
+  - {label: New,            include: "Adjectives/91. new"}
+  - {label: Paint,          include: "Home/40. Paint"}
+  - {label: Pen,            include: "Home/34. Pen"}
+  - {label: Priest,         include: "Jobs/91. Priest"}
+  - {label: Quiet,          include: "Adjectives/2. quiet"}
+  - {label: Red,            include: "Colours/47. Red"}
+  - {label: Shoes,          include: "Clothes/44. Shoes"}
+  - {label: Short,          include: "Adjectives/79. short"}
+  - {label: Small,          include: "Adjectives/84. small little"}
+  - {label: Shop,           include: "Places/28. Store or Shop"}
+  - {label: Summer,         include: "Seasons/61. Summer"}
+  - {label: Teacher,        include: "Jobs/84. Teacher"}
+  - {label: Thank you,      include: "Greetings/55. Thank you"}
+  - {label: Time,           include: "Days_and_Time/86. Time"}
+  - {label: Train ticket,   include: "Means_of_Transportation/16. train ticket"}
+  - {label: T-shirt,        include: "Clothes/42. T-Shirt"}
+  - {label: White,          include: "Colours/55. White"}
+  - {label: Window,         include: "Home/28. Window"}
+  - {label: Year,           include: "Days_and_Time/78. Year"}
+  - {label: You (plural),   include: "Pronouns/46. you (plural)"}
+
+data:
+  include_root: data/include
+  processed_dir: data/processed/include50
+  split: official
+  split_lists: include50              # INCLUDE-50's own train/val/test lists
+  seq_len: 65
+  fps: null
+
+augment:
+  enabled: true
+  target_per_class: 100
+
+model:
+  hidden_size: 256
+  num_layers: 2
+  dropout: 0.5
+
+train:
+  seed: 42
+  batch_size: 32
+  lr: 0.001
+  weight_decay: 0.01
+  max_epochs: 200
+  lr_factor: 0.5
+  lr_patience: 5
+  early_stop_patience: 15
